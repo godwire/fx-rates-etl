@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**🔗 Live demo:**
+**🔗 Live demo:** [fx-rates-etl.streamlit.app](https://fx-rates-etl.streamlit.app/)
 
 A small, complete **ETL pipeline** that pulls daily foreign-exchange rates from a
 public API, validates and loads them into a SQLite warehouse, and visualizes

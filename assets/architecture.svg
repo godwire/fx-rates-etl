@@ -1,0 +1,73 @@
+<svg viewBox="0 0 1040 300" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+  </defs>
+
+  <rect width="1040" height="300" fill="#ffffff"/>
+  <text x="520" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">fx-rates-etl — pipeline architecture</text>
+
+  <!-- Source -->
+  <g>
+    <rect x="20" y="110" width="140" height="90" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+    <text x="90" y="145" text-anchor="middle" font-size="13" font-weight="600" fill="#3730a3">Frankfurter</text>
+    <text x="90" y="163" text-anchor="middle" font-size="13" font-weight="600" fill="#3730a3">API</text>
+    <text x="90" y="183" text-anchor="middle" font-size="10" fill="#4338ca">(free, no key)</text>
+  </g>
+  <line x1="160" y1="155" x2="203" y2="155" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Extract -->
+  <g>
+    <rect x="205" y="90" width="150" height="130" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+    <text x="280" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">extract.py</text>
+    <text x="280" y="145" text-anchor="middle" font-size="11" fill="#065f46">fetch_latest()</text>
+    <text x="280" y="163" text-anchor="middle" font-size="11" fill="#065f46">fetch_range()</text>
+    <text x="280" y="188" text-anchor="middle" font-size="10" fill="#059669">raw JSON</text>
+  </g>
+  <line x1="355" y1="155" x2="398" y2="155" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Transform -->
+  <g>
+    <rect x="400" y="90" width="150" height="130" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+    <text x="475" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412">transform.py</text>
+    <text x="475" y="145" text-anchor="middle" font-size="11" fill="#9a3412">JSON → tidy</text>
+    <text x="475" y="163" text-anchor="middle" font-size="11" fill="#9a3412">DataFrame</text>
+    <text x="475" y="188" text-anchor="middle" font-size="10" fill="#c2410c">long format</text>
+  </g>
+  <line x1="550" y1="155" x2="593" y2="155" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Quality checks -->
+  <g>
+    <rect x="595" y="90" width="160" height="130" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="675" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">quality_checks.py</text>
+    <text x="675" y="145" text-anchor="middle" font-size="11" fill="#991b1b">nulls · sign</text>
+    <text x="675" y="163" text-anchor="middle" font-size="11" fill="#991b1b">currency codes</text>
+    <text x="675" y="181" text-anchor="middle" font-size="11" fill="#991b1b">duplicates · dates</text>
+  </g>
+  <line x1="755" y1="155" x2="798" y2="155" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Load -->
+  <g>
+    <rect x="800" y="90" width="150" height="130" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="875" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">load.py</text>
+    <text x="875" y="145" text-anchor="middle" font-size="11" fill="#1e3a8a">INSERT OR</text>
+    <text x="875" y="163" text-anchor="middle" font-size="11" fill="#1e3a8a">REPLACE</text>
+    <text x="875" y="188" text-anchor="middle" font-size="10" fill="#2563eb">idempotent</text>
+  </g>
+
+  <!-- SQLite + dashboard row -->
+  <line x1="875" y1="220" x2="875" y2="245" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="800" y="247" width="150" height="40" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.5"/>
+    <text x="875" y="272" text-anchor="middle" font-size="12" font-weight="600" fill="#374151">SQLite (fx_rates)</text>
+  </g>
+
+  <line x1="800" y1="267" x2="290" y2="267" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="130" y="247" width="160" height="40" rx="8" fill="#fdf2f8" stroke="#ec4899" stroke-width="1.5"/>
+    <text x="210" y="272" text-anchor="middle" font-size="12" font-weight="600" fill="#9d174d">dashboard.py (Streamlit)</text>
+  </g>
+
+  <text x="520" y="298" text-anchor="middle" font-size="11" fill="#6b7280">Orchestrated locally via CLI (src/pipeline.py) or on a schedule via GitHub Actions.</text>
+</svg>

@@ -1,0 +1,9 @@
+# Core pipeline
+requests>=2.31
+pandas>=2.0
+
+# Dashboard
+streamlit>=1.32
+
+# Testing
+pytest>=8.0

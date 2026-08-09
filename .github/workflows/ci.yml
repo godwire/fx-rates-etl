@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -v
+
+  # Runs the pipeline on a schedule to demonstrate an orchestrated daily
+  # ingestion job. It uploads the resulting SQLite DB as a build artifact
+  # rather than committing it back, so the workflow needs no extra repo
+  # permissions. `continue-on-error` keeps a flaky upstream API from
+  # turning the CI badge red.
+  scheduled-run:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline (latest rates)
+        run: python -m src.pipeline latest
+
+      - name: Upload DB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx-rates-db
+          path: data/fx_rates.db
+
+# To actually run `scheduled-run` on a timer, add this at the top level
+# alongside `push`/`pull_request`:
+#
+# on:
+#   schedule:
+#     - cron: "0 6 * * *"   # every day at 06:00 UTC

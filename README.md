@@ -5,8 +5,6 @@
 ![React](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61dafb)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**🔗 Live demo:** _add your deployed frontend URL here after deploying (see below)_
-
 A small, complete **data pipeline + full-stack app**: a Python ETL pipeline
 pulls daily foreign-exchange rates from a public API into a SQLite warehouse,
 a FastAPI backend exposes that data as JSON, and a React frontend visualizes

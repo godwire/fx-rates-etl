@@ -24,7 +24,7 @@ from src.db import get_connection, init_db
 
 DEFAULT_DB_PATH = "data/fx_rates.db"
 DEFAULT_BASE = "EUR"
-DEFAULT_SYMBOLS = ["USD", "GBP", "JPY", "CHF", "CZK"]
+DEFAULT_SYMBOLS = ["USD", "GBP", "JPY", "CHF", "CZK", "PLN", "CNY", "AUD", "CAD", "TRY"]
 
 logging.basicConfig(
     level=logging.INFO,

@@ -18,10 +18,9 @@ import pandas as pd
 import streamlit as st
 
 from src import pipeline
+from src.pipeline import DEFAULT_BASE, DEFAULT_SYMBOLS
 
 DB_PATH = "data/fx_rates.db"
-DEFAULT_BASE = "EUR"
-DEFAULT_SYMBOLS = ["USD", "GBP", "JPY", "CHF", "CZK"]
 BACKFILL_DAYS = 30
 
 st.set_page_config(page_title="FX Rates Dashboard", page_icon="💱", layout="wide")

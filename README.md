@@ -24,6 +24,7 @@ tries to look like a (very small) production pipeline instead:
 - **Tested** — unit tests mock the network, so `pytest` runs instantly and deterministically
 - **Automated** — GitHub Actions runs the test suite on every push, and can run the pipeline itself on a schedule
 - **Backfillable** — supports both a `latest` daily run and a `backfill` mode for historical date ranges
+- **Multi-base** — pulls rates for several base currencies in one run (EUR, USD, GBP, JPY by default), not just a single fixed base
 
 ## Quickstart
 
@@ -46,7 +47,7 @@ python -m src.pipeline latest
 Or backfill a date range:
 
 ```bash
-python -m src.pipeline backfill --start 2024-01-01 --end 2024-01-31 --base EUR --symbols USD,GBP,JPY
+python -m src.pipeline backfill --start 2024-01-01 --end 2024-01-31 --base EUR,USD --symbols GBP,JPY,CHF
 ```
 
 View the results in the dashboard:

@@ -18,7 +18,7 @@ import pandas as pd
 import streamlit as st
 
 from src import pipeline
-from src.pipeline import DEFAULT_BASE, DEFAULT_SYMBOLS
+from src.pipeline import DEFAULT_BASES, DEFAULT_SYMBOLS
 
 DB_PATH = "data/fx_rates.db"
 BACKFILL_DAYS = 30
@@ -54,7 +54,7 @@ def bootstrap_if_needed() -> None:
         with st.spinner("First run: loading the last 30 days of exchange rates..."):
             start = (date.today() - timedelta(days=BACKFILL_DAYS)).isoformat()
             end = date.today().isoformat()
-            pipeline.run_backfill(start, end, DEFAULT_BASE, DEFAULT_SYMBOLS, DB_PATH)
+            pipeline.run_backfill(start, end, DEFAULT_BASES, DEFAULT_SYMBOLS, DB_PATH)
         load_data.clear()
 
 
@@ -63,12 +63,12 @@ with st.sidebar:
     st.header("Controls")
     if st.button("🔄 Fetch latest rates"):
         with st.spinner("Fetching latest rates..."):
-            pipeline.run_latest(DEFAULT_BASE, DEFAULT_SYMBOLS, DB_PATH)
+            pipeline.run_latest(DEFAULT_BASES, DEFAULT_SYMBOLS, DB_PATH)
         load_data.clear()
         st.success("Updated.")
 
     st.caption(
-        f"Base currency: **{DEFAULT_BASE}** · "
+        f"Bases: **{', '.join(DEFAULT_BASES)}** · "
         f"Tracked: {', '.join(DEFAULT_SYMBOLS)}"
     )
 

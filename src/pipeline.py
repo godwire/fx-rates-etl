@@ -5,14 +5,22 @@ Wires extract -> transform -> validate -> load together and exposes a
 small command-line interface so the pipeline can be run locally, from
 cron, or from a scheduled GitHub Actions workflow.
 
+Supports multiple base currencies in one run: for each base, rates are
+fetched against every other tracked currency and loaded separately, so
+the warehouse ends up with several base/currency "views" instead of
+just one (e.g. EUR->USD alongside USD->EUR, GBP->USD, etc.).
+
 Examples
 --------
-Fetch and load the latest available rates:
-    python -m src.pipeline latest --base EUR --symbols USD,GBP,JPY
+Fetch and load the latest available rates for the default bases/symbols:
+    python -m src.pipeline latest
+
+Fetch just a couple of specific bases:
+    python -m src.pipeline latest --base EUR,USD --symbols GBP,JPY,CHF
 
 Backfill a date range (e.g. for an initial load):
     python -m src.pipeline backfill --start 2024-01-01 --end 2024-01-31 \\
-        --base EUR --symbols USD,GBP,JPY
+        --base EUR,USD --symbols GBP,JPY,CHF
 """
 
 import argparse
@@ -23,8 +31,19 @@ from src import extract, load, quality_checks, transform
 from src.db import get_connection, init_db
 
 DEFAULT_DB_PATH = "data/fx_rates.db"
-DEFAULT_BASE = "EUR"
-DEFAULT_SYMBOLS = ["USD", "GBP", "JPY", "CHF", "CZK", "PLN", "CNY", "AUD", "CAD", "TRY"]
+
+# All currencies of interest. Each one can act as a base or as a target.
+ALL_CURRENCIES = [
+    "EUR", "USD", "GBP", "JPY", "CHF", "CZK", "PLN", "CNY", "AUD", "CAD", "TRY",
+]
+
+# Which of the currencies above to pull as a *base* (i.e. "rates FROM this
+# currency"). Kept smaller than ALL_CURRENCIES because each extra base is
+# a full extra API call per run.
+DEFAULT_BASES = ["EUR", "USD", "GBP", "JPY"]
+
+# Which currencies to fetch rates *against*, for every base above.
+DEFAULT_SYMBOLS = ALL_CURRENCIES
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,18 +52,32 @@ logging.basicConfig(
 logger = logging.getLogger("pipeline")
 
 
-def run_latest(base: str, symbols: list[str], db_path: str) -> int:
-    logger.info("Running LATEST pipeline: base=%s symbols=%s", base, symbols)
-    payload = extract.fetch_latest(base, symbols)
-    return _transform_validate_load(payload, db_path)
+def run_latest(bases: list[str], symbols: list[str], db_path: str) -> int:
+    logger.info("Running LATEST pipeline: bases=%s symbols=%s", bases, symbols)
+    total_written = 0
+    for base in bases:
+        target_symbols = [s for s in symbols if s != base]
+        if not target_symbols:
+            logger.warning("Skipping base=%s: no target symbols left after excluding itself", base)
+            continue
+        payload = extract.fetch_latest(base, target_symbols)
+        total_written += _transform_validate_load(payload, db_path)
+    return total_written
 
 
-def run_backfill(start: str, end: str, base: str, symbols: list[str], db_path: str) -> int:
+def run_backfill(start: str, end: str, bases: list[str], symbols: list[str], db_path: str) -> int:
     logger.info(
-        "Running BACKFILL pipeline: %s..%s base=%s symbols=%s", start, end, base, symbols
+        "Running BACKFILL pipeline: %s..%s bases=%s symbols=%s", start, end, bases, symbols
     )
-    payload = extract.fetch_range(start, end, base, symbols)
-    return _transform_validate_load(payload, db_path)
+    total_written = 0
+    for base in bases:
+        target_symbols = [s for s in symbols if s != base]
+        if not target_symbols:
+            logger.warning("Skipping base=%s: no target symbols left after excluding itself", base)
+            continue
+        payload = extract.fetch_range(start, end, base, target_symbols)
+        total_written += _transform_validate_load(payload, db_path)
+    return total_written
 
 
 def _transform_validate_load(payload: dict, db_path: str) -> int:
@@ -67,7 +100,11 @@ def _transform_validate_load(payload: dict, db_path: str) -> int:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="FX rates ETL pipeline")
-    parser.add_argument("--base", default=DEFAULT_BASE, help="Base currency, e.g. EUR")
+    parser.add_argument(
+        "--base",
+        default=",".join(DEFAULT_BASES),
+        help="Comma-separated base currencies, e.g. EUR,USD,GBP",
+    )
     parser.add_argument(
         "--symbols",
         default=",".join(DEFAULT_SYMBOLS),
@@ -89,13 +126,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_arg_parser()
     args = parser.parse_args(argv)
+    bases = [b.strip().upper() for b in args.base.split(",") if b.strip()]
     symbols = [s.strip().upper() for s in args.symbols.split(",") if s.strip()]
 
     try:
         if args.mode == "latest":
-            run_latest(args.base.upper(), symbols, args.db_path)
+            run_latest(bases, symbols, args.db_path)
         elif args.mode == "backfill":
-            run_backfill(args.start, args.end, args.base.upper(), symbols, args.db_path)
+            run_backfill(args.start, args.end, bases, symbols, args.db_path)
     except Exception:
         logger.exception("Pipeline failed")
         return 1

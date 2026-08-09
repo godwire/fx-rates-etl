@@ -1,10 +1,10 @@
 # fx-rates-etl
 
-![CI](https://github.com/YOUR_USERNAME/fx-rates-etl/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/godwire/fx-rates-etl/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-**🔗 Live demo:** _add your Streamlit Community Cloud URL here after deploying (see below)_
+**🔗 Live demo:** [fx-rates-etl.streamlit.app](https://fx-rates-etl.streamlit.app/)
 
 A small, complete **ETL pipeline** that pulls daily foreign-exchange rates from a
 public API, validates and loads them into a SQLite warehouse, and visualizes
@@ -28,7 +28,7 @@ tries to look like a (very small) production pipeline instead:
 ## Quickstart
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/fx-rates-etl.git
+git clone https://github.com/godwire/fx-rates-etl.git
 cd fx-rates-etl
 
 python -m venv .venv
